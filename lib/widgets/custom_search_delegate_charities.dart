@@ -49,6 +49,7 @@ class MySearchDelegate extends SearchDelegate{
               subtitle: Text(suggestions[index].description, maxLines: 2,),
               onTap: () {
                 query = suggestions[index].name;
+                indexValue = index;
                 showResults(context);
               },
             );

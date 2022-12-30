@@ -9,6 +9,10 @@ import 'package:eloes/widgets/custom_search_delegate_charities.dart';
 import 'package:eloes/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 
+
+
+// Change home to have products that can be purchased and used to fund the application
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 

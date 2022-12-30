@@ -5,7 +5,7 @@ import 'package:eloes/pages/view_charity.dart';
 import 'package:eloes/widgets/custom_search_delegate_charities.dart';
 import 'package:eloes/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 
 class SavedCharities extends StatefulWidget {
   const SavedCharities({Key? key}) : super(key: key);
@@ -22,6 +22,34 @@ class _SavedCharitiesState extends State<SavedCharities> {
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
+
+    Future<void> initPaymentSheet() async {
+     try {
+       // 1. create payment intent on the server
+       final data = await _createTestPaymentSheet();
+
+       // 2. initialize the payment sheet
+       await stripe.Stripe.instance.initPaymentSheet(
+           paymentSheetParameters: stripe.SetupPaymentSheetParameters(
+             //Enable custom flow
+             customFlow: true,
+             // Main params
+             merchantDisplayName: 'Eloes',
+             paymentIntentClientSecret: data['paymentIntent'],
+             // Customer keys
+             customerEphemeralKeySecret: data['ephemeralKey'],
+             customerId: data['customer'],
+             // extra options
+
+           )
+       );
+     }catch (error) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Error $error'))
+       );
+       rethrow;
+     }//end try-catch
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -59,6 +87,7 @@ class _SavedCharitiesState extends State<SavedCharities> {
                               if (savedCharities.isEmpty) {
                                 return const Center(child: Text('They are currently no saved charities', style: TextStyle(color: textColor),),);
                               } else {
+
                                 return Card(
                                   shadowColor: shadowColor,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(height/80)),
@@ -210,11 +239,24 @@ class _SavedCharitiesState extends State<SavedCharities> {
                     return const Center(child: CircularProgressIndicator(),);
                   }//end if-else
                 },
-                future: Charities.getSavedSQLCharities(),)
+                future: Charities.getSavedSQLCharities(),),
+              // pay now button
+              Row(
+                children: [
+                  Expanded(child: ElevatedButton(onPressed: (){
+                    // todo: Use stripe to do payment , remember to check for success or failure
+                    showDialog(context: context, builder: (context)=> const AlertDialog(
+                      content: Text('To donate please send the amount total to the following email, via paypal,\nsizibamthandazo.@yahoo.com. \nA payment gateway will be in place in a future update'),
+                    ));
+                  }, child: const Text('Donate now')))
+                ],
+              )
             ],
           ),
         ),
       ),),
     );
   }
+
+  _createTestPaymentSheet() {}
 }
