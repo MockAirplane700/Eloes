@@ -80,8 +80,8 @@ class Charities{
         boolean = false;
       }
     }
-
-    if (boolean){
+    // todo: correct duplication mistake
+    if (!boolean){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thank you for donation! :) ')));
       return SqlDatabaseManager.insertCharity(sqlObject);
     }else{

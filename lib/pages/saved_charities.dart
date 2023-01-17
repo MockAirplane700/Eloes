@@ -1,5 +1,7 @@
 import 'package:eloes/constants/constant_variables.dart';
 import 'package:eloes/logic/charities.dart';
+import 'package:eloes/logic/paypal_logic.dart';
+import 'package:eloes/logic/permissions.dart';
 import 'package:eloes/objects/charity.dart';
 import 'package:eloes/pages/view_charity.dart';
 import 'package:eloes/widgets/custom_search_delegate_charities.dart';
@@ -17,11 +19,13 @@ class SavedCharities extends StatefulWidget {
 class _SavedCharitiesState extends State<SavedCharities> {
   late double height;
   late double width;
+  String paypalTotal = '';
 
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
+
 
     Future<void> initPaymentSheet() async {
      try {
@@ -152,6 +156,7 @@ class _SavedCharitiesState extends State<SavedCharities> {
                     String serviceFees = (donation * serviceFeePercentage).toStringAsFixed(2);
                     String taxes = (donation * taxPercentage).toStringAsFixed(2);
                     String finalTotal = ( (donation * serviceFeePercentage) + (donation * taxPercentage) + donation ).toStringAsFixed(2);
+                    paypalTotal = finalTotal;
                     if (list.isNotEmpty) {
                       // total is zero
                       return Center(child: Padding(
@@ -244,10 +249,14 @@ class _SavedCharitiesState extends State<SavedCharities> {
               Row(
                 children: [
                   Expanded(child: ElevatedButton(onPressed: (){
+                    // check permissions
+                    PermissionsLogic.checkStoragePermissions();
                     // todo: Use stripe to do payment , remember to check for success or failure
                     showDialog(context: context, builder: (context)=> const AlertDialog(
                       content: Text('To donate please send the amount total to the following email, via paypal,\nsizibamthandazo.@yahoo.com. \nA payment gateway will be in place in a future update'),
                     ));
+                    Paypal paypal = Paypal();
+                    paypal.callPaypal(paypalTotal);
                   }, child: const Text('Donate now')))
                 ],
               )
